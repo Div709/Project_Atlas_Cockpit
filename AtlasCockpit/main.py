@@ -22,13 +22,23 @@ class Cockpit(QWidget):
 
         self.setWindowTitle("ATLAS COCKPIT")
         self.resize(400, 250)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #202020;
+                color: lime;
+                font-size: 16px;
+            }
+        """)
 
         self.title = QLabel("ATLAS COCKPIT")
         self.throttle = QLabel("Throttle: 0%")
+        self.bar = QLabel("[----------]")
+
         self.raw = QLabel("Raw Value: 0")
         self.status = QLabel("STATUS: READY")
 
         layout = QVBoxLayout()
+        layout.addWidget(self.bar)
 
         layout.addWidget(self.title)
         layout.addWidget(self.throttle)
@@ -57,6 +67,10 @@ class Cockpit(QWidget):
                 # index 1 is taken which is the value. POT = 420. 420 is the value
 
                 percent = int((value / 1023) * 100)
+                bars = int(percent / 10)
+
+                gauge = "█" * bars + "░" * (10 - bars)
+                self.bar.setText(gauge)
 
                 self.throttle.setText(
                     f"Throttle: {percent}%" # updating value
