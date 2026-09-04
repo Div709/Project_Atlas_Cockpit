@@ -36,6 +36,7 @@ class Cockpit(QWidget):
 
         self.raw = QLabel("Raw Value: 0")
         self.rpm = QLabel("RPM: 0")
+        self.warning = QLabel("STATUS: NORMAL")
         self.status = QLabel("STATUS: READY")
 
         layout = QVBoxLayout()
@@ -45,6 +46,7 @@ class Cockpit(QWidget):
         layout.addWidget(self.throttle)
         layout.addWidget(self.raw)
         layout.addWidget(self.status)
+        layout.addWidget(self.warning)
         layout.addWidget(self.rpm)
 
         self.setLayout(layout)
@@ -64,7 +66,21 @@ class Cockpit(QWidget):
         engine_state = int(parts[1].split("=")[1])
 
         percent = int((pot_value / 1023) * 100)
-        rpm = int((percent / 100) * 5000)
+        if engine_state == 0:
+            rpm = int((percent / 100) * 5000)
+        else:
+            rpm = 0
+        if rpm < 500:
+            self.warning.setText("⚠ ENGINE IDLE")
+            self.warning.setStyleSheet("color: yellow;")
+
+        elif rpm > 4500:
+            self.warning.setText("⚠ HIGH RPM WARNING")
+            self.warning.setStyleSheet("color: red;")
+
+        else:
+            self.warning.setText("✅ SYSTEM NORMAL")
+            self.warning.setStyleSheet("color: lime;")
 
         bars = int(percent / 10)
 
