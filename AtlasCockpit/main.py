@@ -7,6 +7,8 @@ from PyQt6.QtWidgets import (
     QLabel,
     QVBoxLayout
 )
+# This is the engine that runs the graphical interface.
+# It is the OS for the GUI
 
 from PyQt6.QtCore import QTimer
 
@@ -37,31 +39,38 @@ class Cockpit(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_data)
-        self.timer.start(100)
+        self.timer.start(100) # starts timer which runs ever 100ms
 
     def update_data(self):
         try:
-            line = arduino.readline().decode().strip()
+            line = arduino.readline().decode().strip() # reading of data
+            # .readline() reads one line from arduino
+            #decode() converts bytes which is sent by arduino into text
+            # strip() removes /n
 
             if line.startswith("POT="):
+                # only continues when POT = a value
+
 
                 value = int(line.split("=")[1])
+                # extracting the number
+                # index 1 is taken which is the value. POT = 420. 420 is the value
 
                 percent = int((value / 1023) * 100)
 
                 self.throttle.setText(
-                    f"Throttle: {percent}%"
+                    f"Throttle: {percent}%" # updating value
                 )
 
                 self.raw.setText(
                     f"Raw Value: {value}"
                 )
 
-        except:
+        except: # error handling
             pass
 
 
-app = QApplication(sys.argv)
+app = QApplication(sys.argv) # starts app
 
 window = Cockpit()
 window.show()
