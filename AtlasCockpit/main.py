@@ -35,6 +35,7 @@ class Cockpit(QWidget):
         self.bar = QLabel("[----------]")
 
         self.raw = QLabel("Raw Value: 0")
+        self.rpm = QLabel("RPM: 0")
         self.status = QLabel("STATUS: READY")
 
         layout = QVBoxLayout()
@@ -44,6 +45,7 @@ class Cockpit(QWidget):
         layout.addWidget(self.throttle)
         layout.addWidget(self.raw)
         layout.addWidget(self.status)
+        layout.addWidget(self.rpm)
 
         self.setLayout(layout)
 
@@ -52,36 +54,32 @@ class Cockpit(QWidget):
         self.timer.start(100) # starts timer which runs ever 100ms
 
     def update_data(self):
-        try:
-            line = arduino.readline().decode().strip() # reading of data
-            # .readline() reads one line from arduino
-            #decode() converts bytes which is sent by arduino into text
-            # strip() removes /n
 
-            if line.startswith("POT="):
-                # only continues when POT = a value
+        line = arduino.readline().decode().strip()
+        print(line)
 
+        parts = line.split(",")
 
-                value = int(line.split("=")[1])
-                # extracting the number
-                # index 1 is taken which is the value. POT = 420. 420 is the value
+        pot_value = int(parts[0].split("=")[1])
+        engine_state = int(parts[1].split("=")[1])
 
-                percent = int((value / 1023) * 100)
-                bars = int(percent / 10)
+        percent = int((pot_value / 1023) * 100)
+        rpm = int((percent / 100) * 5000)
 
-                gauge = "█" * bars + "░" * (10 - bars)
-                self.bar.setText(gauge)
+        bars = int(percent / 10)
 
-                self.throttle.setText(
-                    f"Throttle: {percent}%" # updating value
-                )
+        gauge = "█" * bars + "░" * (10 - bars)
 
-                self.raw.setText(
-                    f"Raw Value: {value}"
-                )
+        self.throttle.setText(f"Throttle: {percent}%")
+        self.bar.setText(gauge)
+        self.raw.setText(f"Raw Value: {pot_value}")
+        self.rpm.setText(f"RPM: {rpm}")
 
-        except: # error handling
-            pass
+        if engine_state == 0:
+            self.status.setText("ENGINE: RUNNING")
+        else:
+            self.status.setText("ENGINE: OFF")
+
 
 
 app = QApplication(sys.argv) # starts app
