@@ -1,5 +1,6 @@
 import sys
 import serial
+import time
 
 from PyQt6.QtWidgets import (
     QApplication,
@@ -38,6 +39,10 @@ class Cockpit(QWidget):
         self.rpm = QLabel("RPM: 0")
         self.warning = QLabel("STATUS: NORMAL")
         self.status = QLabel("STATUS: READY")
+        self.engine_state = "OFF"
+        self.start_time = None
+        self.last_button_state = 1
+
 
         layout = QVBoxLayout()
         layout.addWidget(self.bar)
@@ -66,7 +71,44 @@ class Cockpit(QWidget):
         engine_state = int(parts[1].split("=")[1])
 
         percent = int((pot_value / 1023) * 100)
-        if engine_state == 0:
+        # Start engine
+
+        # Detect button press edge
+
+        if (
+                engine_state == 0
+                and self.last_button_state == 1
+                and self.engine_state == "OFF"
+        ):
+            self.engine_state = "STARTING"
+            self.start_time = time.time()
+
+        self.last_button_state = engine_state
+
+
+        # Engine starting
+
+        if self.engine_state == "STARTING":
+
+            self.status.setText("ENGINE: STARTING...")
+
+            if time.time() - self.start_time > 2:
+                self.engine_state = "RUNNING"
+
+        # Engine running
+
+        elif self.engine_state == "RUNNING":
+
+            self.status.setText("ENGINE: RUNNING")
+
+        # Engine off
+
+        elif self.engine_state == "OFF":
+
+            self.status.setText("ENGINE: OFF")
+
+        print(self.engine_state)
+        if self.engine_state == "RUNNING":
             rpm = int((percent / 100) * 5000)
         else:
             rpm = 0
@@ -90,11 +132,6 @@ class Cockpit(QWidget):
         self.bar.setText(gauge)
         self.raw.setText(f"Raw Value: {pot_value}")
         self.rpm.setText(f"RPM: {rpm}")
-
-        if engine_state == 0:
-            self.status.setText("ENGINE: RUNNING")
-        else:
-            self.status.setText("ENGINE: OFF")
 
 
 
