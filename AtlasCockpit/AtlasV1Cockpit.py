@@ -2,7 +2,6 @@ import sys
 import serial
 import time
 from PyQt6.QtCore import Qt
-
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -11,7 +10,6 @@ from PyQt6.QtWidgets import (
 )
 # This is the engine that runs the graphical interface.
 # It is the OS for the GUI
-
 from PyQt6.QtCore import QTimer
 
 
