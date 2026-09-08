@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ATLAS V2</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <header>
+        <h1>🚀 ATLAS COCKPIT</h1>
+    </header>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>RPM</h2>
+            <div id="rpm">0000</div>
+        </div>
+
+        <div class="card">
+            <h2>THROTTLE</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="throttle-bar"></div>
+            </div>
+
+            <div id="throttle-value">0%</div>
+        </div>
+
+        <div class="card">
+            <h2>ENGINE STATUS</h2>
+
+            <div id="status">
+                RUNNING
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>MOTOR STATUS</h2>
+
+            <div class="motor-status">
+                ACTIVE
+            </div>
+        </div>
+
+    </div>
+
+    <div class="status-panel">
+
+        <div class="indicator power">
+            🟢 POWER
+        </div>
+
+        <div class="indicator engine">
+            🟢 ENGINE
+        </div>
+
+        <div class="indicator warning">
+            ⚪ WARNING
+        </div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
