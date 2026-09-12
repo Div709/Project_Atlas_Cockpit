@@ -1,18 +1,29 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import serial
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 arduino = serial.Serial("COM5", 9600)
+@app.get("/")
+def home():
+    return {
+        "message": "Atlas Backend Running"
+    }
 
 @app.get("/telemetry")
 def telemetry():
 
     line = arduino.readline().decode().strip()
 
-    print("RAW:", line)
-
     try:
+
         parts = line.split(",")
 
         return {
@@ -22,6 +33,7 @@ def telemetry():
         }
 
     except Exception as e:
+
         return {
             "error": str(e),
             "raw": line
