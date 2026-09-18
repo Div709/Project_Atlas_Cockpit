@@ -36,6 +36,9 @@ int16_t ax = 0;
 int16_t ay = 0;
 int16_t az = 0;
 
+float pitch = 0;
+float roll = 0;
+
 // ==================================
 // READ MPU6500
 // ==================================
@@ -43,9 +46,7 @@ int16_t az = 0;
 void readMPU()
 {
     Wire.beginTransmission(0x68);
-
     Wire.write(0x3B);
-
     Wire.endTransmission(false);
 
     Wire.requestFrom(0x68, 6);
@@ -55,6 +56,15 @@ void readMPU()
         ax = (Wire.read() << 8) | Wire.read();
         ay = (Wire.read() << 8) | Wire.read();
         az = (Wire.read() << 8) | Wire.read();
+
+        float ax_g = ax / 16384.0;
+        float ay_g = ay / 16384.0;
+        float az_g = az / 16384.0;
+
+        pitch =
+            atan2(ay_g,sqrt(ax_g * ax_g + az_g * az_g)) * 180.0 / PI;
+
+        roll =atan2(-ax_g,az_g) * 180.0 / PI;
     }
 }
 
@@ -209,14 +219,11 @@ void loop()
     Serial.print(",RPM=");
     Serial.print(rpm);
 
-    Serial.print(",AX=");
-    Serial.print(ax);
+    Serial.print(",PITCH=");
+    Serial.print(pitch);
 
-    Serial.print(",AY=");
-    Serial.print(ay);
-
-    Serial.print(",AZ=");
-    Serial.println(az);
+    Serial.print(",ROLL=");
+    Serial.println(roll);
 
     // ------------------------------
     // LCD Line 1
@@ -251,5 +258,5 @@ void loop()
         lcd.print("ENGINE RUNNING ");
     }
 
-    delay(10);
+    delay(5);
 }
