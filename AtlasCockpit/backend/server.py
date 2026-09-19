@@ -2,8 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import serial
 import threading
+import pygame
+import threading
 
 app = FastAPI()
+
+control_throttle = 0
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,10 +32,38 @@ latest_data = {
     "AZ": "0"
 }
 
+
+
+def controller_reader():
+
+    global controller_throttle
+
+    pygame.init()
+    pygame.joystick.init()
+
+    if pygame.joystick.get_count() == 0:
+        print("No controller detected")
+        return
+
+    js = pygame.joystick.Joystick(0)
+    js.init()
+
+    print("Controller Connected")
+
+    while True:
+
+        pygame.event.pump()
+
+        axis = js.get_axis(1)
+
+        throttle = int(
+            ((-axis + 1) / 2) * 100
+        )
+
+        controller_throttle = throttle
 # ==================================
 # BACKGROUND SERIAL READER
 # ==================================
-
 def serial_reader():
 
     global latest_data
@@ -70,6 +102,11 @@ threading.Thread(
     target=serial_reader,
     daemon=True
 ).start()
+threading.Thread(
+    target=controller_reader,
+    daemon=True
+).start()
+
 
 # ==================================
 # API
@@ -86,3 +123,9 @@ def home():
 def telemetry():
 
     return latest_data
+@app.get("/controller")
+def controller():
+
+    return {
+        "throttle": controller_throttle
+    }
